@@ -13,7 +13,7 @@ if ($ad["t"] < time()) {
     exit("Wait till next release to be updated");
     //will fix in the future to make it check every so often for a update
 }
-$maxAmount = 4;//Most of them time
+$maxAmount = 4;//Most of the time
 if (!empty($ad['m2']) && strpos($ad['m2'], "Max:")) {
     //there is a max
     $maxAmount = intval(explode('Max:', $ad['m2'])[1]);
