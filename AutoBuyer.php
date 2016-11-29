@@ -4,7 +4,7 @@
     Made By Techy
     
     This is a rough script (somethings might not work)
-    Not testing enough
+    Not tested enough
 
 */
 

@@ -20,8 +20,7 @@ if (array_key_exists('id', $_REQUEST)) {
     $ip2 = json_decode($page, true);
     
     $conn = pickIP($_REQUEST['id']);
-    $json = (object) ['ip' => $conn[0], 'port' => $conn[1]];
-    die(json_encode($json, JSON_PRETTY_PRINT));
+    die(json_encode((object) ['ip' => $conn[0], 'port' => $conn[1]], JSON_PRETTY_PRINT));
 } else {
     die(json_encode(['error' => 'Usage chatconn.php?id=ROOMID'], JSON_PRETTY_PRINT));
 }
@@ -59,7 +58,6 @@ function pickIP($id)
     global $ip2;
     $local3 = $ip2[$ip2['order'][0][0]];
     if ($local3[0] & 1 == 1) {
-        $local5 = '0';
         $local5 = floor((mt_rand(0, 10) / 10) * (sizeof($local3) - 1)) + 1;
 
         if (!isset($local3[$local5])) {
@@ -76,11 +74,8 @@ function pickIP($id)
         $local7[2] = $local7[2] ?? 39;
 
         $local8 = (intval($local7[1]) + floor((mt_rand(0, 10) / 10) * intval($local7[2])));
-        $return = [$local7[0], $local8];
-    } else {
-        $local11 = $local3[1][(4 * getDom($id)) + floor((mt_rand(0, 10) / 10) * 4)];
-        $return  = [$local11, getPort($id)];
+        return [$local7[0], $local8];
     }
-    return $return;
+    return [$local3[1][(4 * getDom($id)) + floor((mt_rand(0, 10) / 10) * 4)], getPort($id)];
 }
 ?>
