@@ -32,7 +32,6 @@ case "doodle":
     for ($y = 0; $y < $info[1]; $y++) {
         for ($x = 0; $x < $info[0]; $x++) {
             $rgb = imagecolorsforindex($image, imagecolorat($image, $x, $y));
-            print $rgb['alpha'] . PHP_EOL;
             if ($rgb['red'] . $rgb['green'] . $rgb['blue'] != '255255255') {
                 if ($rgb['alpha'] != 127) {//no transparent pixels sry
                     if (count($strokes) > 0) {
