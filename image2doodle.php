@@ -5,7 +5,7 @@
     
     This was striped from my testing bot
 */
-case "doodle":
+case "draw":
     //test image - https://s-media-cache-ak0.pinimg.com/originals/87/fd/02/87fd021b7184580473615ba7b416bfa5.jpg
     if (!isset($message[2])) {
         return $bot->network->sendMessageAutoDetection($who, "No Image found", $type);
@@ -27,19 +27,19 @@ case "doodle":
         case "image/png": $image = imagecreatefrompng($url); break;
         default: return $bot->network->sendMessageAutoDetection($who, "This image must be png, jpg or gif", $type); break;
     }
-    $bot->network->sendMessageAutoDetection($who, "Generating strokes", $type);
+    $bot->network->sendMessageAutoDetection($who, "Analyzing " . substr($info['mime'], 6), $type);
     $strokes = [];
     for ($y = 0; $y < $info[1]; $y++) {
         for ($x = 0; $x < $info[0]; $x++) {
             $rgb = imagecolorsforindex($image, imagecolorat($image, $x, $y));
             if ($rgb['red'] . $rgb['green'] . $rgb['blue'] != '255255255') {
-                if ($rgb['alpha'] != 127) {//no transparent pixels sry
+                if ($rgb['alpha'] != 127) {
                     if (count($strokes) > 0) {
                         $prev = $strokes[count($strokes) - 1];
                         $currcol = $rgb['red'] . $rgb['green'] . $rgb['blue'] . $rgb['alpha'];
                         $prevcol = $prev['red'] . $prev['green'] . $prev['blue'] . $prev['alpha'];
                         if ($prev['y'] == $y && $currcol == $prevcol && ($prev['x'] + $prev['distance']) == $x) {
-                            $strokes[count($strokes) - 1]['distance']++;
+                            $strokes[count($strokes) - 1]['distance']++;//stroke bunching for faster drawing
                         } else {
                             $strokes[] = ['red' => $rgb['red'], 'green' => $rgb['green'], 'blue' => $rgb['blue'], 'alpha' => $rgb['alpha'], 'x' => $x, 'y' => $y, 'distance' => 1];
                         }
@@ -53,7 +53,8 @@ case "doodle":
     if (count($strokes) < 1) {
         return $bot->network->sendMessageAutoDetection($who, "Image is all white or is blank", $type);
     }
-    $bot->network->sendMessageAutoDetection($who, "Drawing " . substr($info['mime'], 6) . ", " . count($strokes) . " Strokes", $type);
+    $estimated = floor((count($strokes) / 500) * 30);//about 500 strokes per 30 seconds
+    $bot->network->sendMessageAutoDetection($who, "Drawing image. Strokes required: " . count($strokes) . ", Estimated time: " . $estimated . " - " . ($estimated + 2) . " seconds", $type);
     $startTime = time();
     foreach($strokes as $stroke) {
         if ($info[0] < 425) {//ghetto image centering
@@ -63,7 +64,7 @@ case "doodle":
             $stroke['y'] = (212 - floor($info[1] / 2)) + $stroke['y'];
         }
         $strke = [2, 0, $stroke['red'], $stroke['green'], $stroke['blue'], 100 - $stroke['alpha'], $stroke['x'] >> 8 & 255, $stroke['x'] & 255, $stroke['y'] >> 8 & 255, $stroke['y'] & 255];
-        for($i = 1;$i <= $stroke['distance'];$i++) {//stroke bunching for faster doodling
+        for($i = 1;$i <= $stroke['distance'];$i++) {//stroke bunching for faster drawing
             $strke[] = 128;
             $strke[] = 127;
         }
@@ -73,16 +74,5 @@ case "doodle":
         usleep(60000);
     }
     $bot->network->sendMessageAutoDetection($who, "Drawing Finished, " . (time() - $startTime) . " seconds", $type);
-    /* old way without stroke bunching
-    for ($y = 0; $y < $info[1]; $y++) {
-        for ($x = 0; $x < $info[0]; $x++) {
-            $rgb = imagecolorsforindex($image, imagecolorat($image, $x, $y));
-            if ($rgb['red'] . $rgb['green'] . $rgb['blue'] != '255255255') {
-                $stroke = [2, 1, $rgb['red'], $rgb['green'], $rgb['blue'], 100 - $rgb['alpha'], $x >> 8 & 255, $x & 255, $y >> 8 & 255, $y & 255, 128, 127, 0, 0];
-                $bot->network->write('x', ['i'	=> 10000, 'd' => $bot->network->logininfo['i'], 't' => base64_encode(pack("C*", ...$stroke))]);
-                usleep(60000);
-            }
-        }
-    }*/
     break;
 ?>
