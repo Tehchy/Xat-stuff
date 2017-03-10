@@ -54,8 +54,9 @@ case "draw":
         return $bot->network->sendMessageAutoDetection($who, "Image is all white or is blank", $type);
     }
     $estimated = floor((count($strokes) / 500) * 30);//about 500 strokes per 30 seconds
-    $bot->network->sendMessageAutoDetection($who, "Drawing image. Strokes required: " . count($strokes) . ", Estimated time: " . $estimated . " - " . ($estimated + 2) . " seconds", $type);
+    $bot->network->sendMessageAutoDetection($who, "Drawing image. Strokes required: " . count($strokes) . ", Estimated time: " . $estimated . " - " . ($estimated + 2) . " seconds (old estimate)", $type);
     $startTime = time();
+    $num = 0;
     foreach($strokes as $stroke) {
         if ($info[0] < 425) {//ghetto image centering
             $stroke['x'] = (212 - floor($info[0] / 2)) + $stroke['x'];
@@ -71,7 +72,10 @@ case "draw":
         $strke[] = 0;
         $strke[] = 0;
         $bot->network->write('x', ['i'	=> 10000, 'd' => $bot->network->logininfo['i'], 't' => base64_encode(pack("C*", ...$strke))]);//everyone out her using a ported as3 fucntion for this ahahahahahah
-        usleep(60000);
+        if ($num % 40 == 0 || $num % 500 == 0) {
+            usleep(60000);  
+        }
+        $num++;
     }
     $bot->network->sendMessageAutoDetection($who, "Drawing Finished, " . (time() - $startTime) . " seconds", $type);
     break;
