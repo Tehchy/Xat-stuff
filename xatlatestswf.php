@@ -6,7 +6,7 @@
     This script is used to download the latest power's assets
     such as the power, smilies, pawns, hugs and png image of the power
     
-    Last Modified 12/12/16
+    Last Modified 7/6/17
 */
 $domain = "http://xat.com";
 $pow2 = json_decode(file_get_contents($domain . '/web_gear/chat/pow2.php?' . time()), true);
@@ -15,10 +15,12 @@ $id = end($pow2[6][1]) > $pow2[0][1]['id'] ? end($pow2[6][1]):$pow2[0][1]['id'];
 $id = $id >= key($powers) ? $id:key($powers);
 $id = count(array_keys($pow2[4][1], $id + 1)) > 0 ? $id + 1:$id;
 $smw = array_search($id, $pow2[6][1]);
-$sm2 = array_merge(array(array_search($id, $pow2[6][1])), array_keys($pow2[4][1], $id));//add power and smilies
+$sm2 = array_merge(array($smw), array_keys($pow2[4][1], $id));//add power and smilies
 $hugs = array();
 foreach($pow2[3][1] as $name => $hid) if($hid % 10000 == $id) $hugs[] = $name;//add hugs
 foreach($pow2[7][1] as $pawn) if($pawn[0] == $id) $sm2[] = $pawn[1];//add pawns
+
+print "Grabbing Assets for '{$smw}'" . PHP_EOL;
 
 if(count($sm2) > 0) {
 	foreach($sm2 as $sm) {
